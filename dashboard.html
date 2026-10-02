@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>講座データレポート</title>
+<meta name="robots" content="noindex">
+<style>
+:root{color-scheme:light dark;--bg:#fbfaf7;--surface:#fff;--ink:#16140f;--ink2:#52514e;--ink3:#8a8780;--line:#e7e3da;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--track:#eef0f3;--ok:#1a7f4b;--warn:#b26a00;--bad:#c93b3b}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme=light])){--bg:#141413;--surface:#1c1c1a;--ink:#f4f2ec;--ink2:#c3c2b7;--ink3:#8f8d84;--line:#34332f;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--track:#2a2a28;--ok:#5bd08f;--warn:#e0a13a;--bad:#ef7676}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#141413;--surface:#1c1c1a;--ink:#f4f2ec;--ink2:#c3c2b7;--ink3:#8f8d84;--line:#34332f;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--track:#2a2a28;--ok:#5bd08f;--warn:#e0a13a;--bad:#ef7676}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:21px;margin:6px 0 2px}
+h2{font-size:17px;margin:0 0 4px}
+h3{font-size:14px;margin:0 0 8px;color:var(--ink2)}
+.sub{color:var(--ink3);font-size:13px}
+.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--s1);border-color:var(--s1);color:#fff}
+.chip.sm{padding:3px 10px;font-size:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:28px;line-height:1.2;font-weight:700}
+.kpi span{font-size:12px;color:var(--ink3)}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:minmax(120px,42%) 1fr 74px;gap:8px;align-items:center;font-size:13px}
+.bar .t{color:var(--ink2);line-height:1.35}
+.bar .tr{background:var(--track);height:12px;border-radius:0 6px 6px 0;overflow:hidden}
+.bar .f{height:100%;background:var(--s1);border-radius:0 4px 4px 0}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar.hl .f{background:var(--s2)}
+.stack{display:flex;height:22px;border-radius:6px;overflow:hidden;gap:2px;background:var(--surface)}
+.stack i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--ink2)}
+.leg b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--ink3);font-weight:600;white-space:nowrap}
+td.c,th.c{text-align:center}
+.cell{display:inline-block;min-width:44px;border-radius:6px;padding:1px 6px;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+ul.pts{margin:6px 0 0;padding-left:1.2em}ul.pts li{margin:4px 0}
+.head{background:linear-gradient(0deg,transparent,transparent);border-left:4px solid var(--s2);padding:2px 0 2px 12px;margin:0 0 8px;font-weight:700}
+.tag{display:inline-block;font-size:11px;border-radius:4px;padding:0 6px;margin:0 4px 2px 0;border:1px solid var(--line);color:var(--ink2)}
+.tag.ok{border-color:var(--ok);color:var(--ok)}.tag.bad{border-color:var(--bad);color:var(--bad)}.tag.wait{border-color:var(--warn);color:var(--warn)}
+.quote{border-top:1px solid var(--line);padding:10px 0}
+.quote p{margin:2px 0 4px;white-space:pre-wrap}
+input[type=password],input[type=text]{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 12px;width:240px;max-width:100%}
+button.main{font:inherit;background:var(--s1);color:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer}
+.lines{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.lines svg{width:100%;height:auto;display:block}
+.note{font-size:12px;color:var(--ink3)}
+a{color:var(--s1)}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+@media (max-width:560px){.bar{grid-template-columns:1fr 60px}.bar .tr{grid-column:1/3;grid-row:2}.bar .t{grid-column:1}.bar .v{grid-column:2;grid-row:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><h1>講座データレポート</h1><div class="sub" id="meta">合言葉を入れると表示されます</div></div>
+  <div><button class="chip sm" id="reload" hidden>最新にする</button> <button class="chip sm" id="theme">明暗</button></div></div>
+  <div id="login" class="card"><h2>合言葉</h2><p class="sub">管理者用のページです。個人名・自由記述を含むため、合言葉が必要です。</p>
+    <form id="lf"><input type="password" id="key" autocomplete="current-password" placeholder="合言葉"> <button class="main" type="submit">開く</button></form><p class="sub" id="lerr"></p></div>
+  <div id="app" hidden>
+    <div class="nav" id="nav"></div>
+    <div id="view"></div>
+  </div>
+</div>
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyEBnVDlJrWFn8lbmjSraStGguExjYDrZXhLFquqvalKZ-1M_GidxLBsjqp3Lc6A-gaIw/exec";
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let D = null, NOTES = {}, TAB = "all";
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const f1 = v => v == null ? "—" : (Math.round(v * 10) / 10).toFixed(1);
+
+// ---- 読み込み ----
+async function load(key) {
+  const r = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ kind: "report", key }) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error);
+  return j;
+}
+async function open(key) {
+  $("lerr").textContent = "読み込み中…";
+  try {
+    D = await load(key);
+    try { NOTES = await (await fetch("notes.json")).json(); } catch (e) { NOTES = {}; }
+    try { localStorage.setItem("koza-key", key); } catch (e) {}
+    $("login").hidden = true; $("app").hidden = false; $("reload").hidden = false;
+    $("meta").textContent = "回答 " + D.rows.length + " 件／受講者 " + new Set(D.rows.map(r => r.learner)).size + " 名／更新 " + new Date().toLocaleString("ja-JP");
+    render();
+  } catch (e) { $("lerr").textContent = e.message === "key" ? "合言葉が違います" : "読み込めませんでした（" + e.message + "）"; }
+}
+$("lf").addEventListener("submit", e => { e.preventDefault(); open($("key").value.trim()); });
+$("reload").addEventListener("click", () => { let k = ""; try { k = localStorage.getItem("koza-key") || ""; } catch (e) {} open(k); });
+$("theme").addEventListener("click", () => { const d = document.documentElement; d.dataset.theme = (d.dataset.theme || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light")) === "dark" ? "light" : "dark"; });
+try { const k = localStorage.getItem("koza-key"); if (k) open(k); } catch (e) {}
+
+// ---- 集計 ----
+function ids() { return Object.keys(D.surveys).sort((a, b) => D.surveys[a].order - D.surveys[b].order); }
+const isLesson = id => !D.surveys[id].followup && !id.startsWith("followup");
+function rowsOf(id) { return D.rows.filter(r => r.survey === id); }
+function q(id, qid) { return D.surveys[id].questions.find(x => x.id === qid); }
+function counts(id, qid) {
+  const qq = q(id, qid); if (!qq) return null;
+  const rs = rowsOf(id), m = {};
+  qq.options.forEach(o => m[o] = 0);
+  rs.forEach(r => { const v = r.a[qid]; (Array.isArray(v) ? v : [v]).forEach(x => { if (x in m) m[x]++; }); });
+  return { qq, n: rs.length, list: qq.options.map(o => [o, m[o]]) };
+}
+function stats(id) {
+  const rs = rowsOf(id), n = rs.length, dq = q(id, "done");
+  const steps = dq ? dq.options.filter(o => o !== dq.stop) : [];
+  const full = dq ? rs.filter(r => (r.a.done || []).filter(x => steps.includes(x)).length === steps.length).length : 0;
+  const nums = k => rs.map(r => r.a[k]).filter(v => typeof v === "number");
+  const nps = nums("nps"), conf = nums("conf"), use = nums("useful");
+  const npsScore = nps.length ? Math.round((nps.filter(v => v >= 9).length - nps.filter(v => v <= 6).length) / nps.length * 100) : null;
+  const used = rs.filter(r => r.a.used).length;
+  const usedYes = rs.filter(r => ["日常の業務で使っている", "成果が出た"].includes(r.a.used)).length;
+  return { n, steps, full, fullRate: dq && n ? full / n : null, nps: avg(nps), npsScore, conf: avg(conf), useful: avg(use), usedRate: used ? usedYes / used : null };
+}
+const tone = v => v == null ? "var(--track)" : "color-mix(in srgb, var(--s1) " + Math.round(18 + v * 72) + "%, var(--surface))";
+
+// ---- 部品 ----
+function bars(list, n, opt = {}) {
+  const max = Math.max(1, ...list.map(x => x[1]));
+  return '<div class="bars">' + list.map(([t, c]) =>
+    '<div class="bar' + (opt.hl && opt.hl(t, c) ? " hl" : "") + '" title="' + esc(t) + '：' + c + '名（' + pct(c, n) + '%）"><div class="t">' + esc(t) + '</div><div class="tr"><div class="f" style="width:' + (c / max * 100) + '%"></div></div><div class="v">' + c + '名 · ' + pct(c, n) + '%</div></div>').join("") + '</div>';
+}
+const SER = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--ink3)"];
+function stack(list, n) {
+  const tot = list.reduce((s, x) => s + x[1], 0) || 1;
+  return '<div class="stack" role="img" aria-label="割合">' + list.map(([t, c], i) => c ? '<i style="width:' + (c / tot * 100) + '%;background:' + SER[i % 4] + '" title="' + esc(t) + '：' + c + '名"></i>' : "").join("") + '</div>' +
+    '<div class="leg">' + list.map(([t, c], i) => '<span><b style="background:' + SER[i % 4] + '"></b>' + esc(t) + ' ' + c + '名（' + pct(c, n) + '%）</span>').join("") + '</div>';
+}
+function block(title, why, body) { return '<div class="card"><h2>' + esc(title) + '</h2>' + (why ? '<div class="sub" style="margin-bottom:10px">' + esc(why) + '</div>' : '') + body + '</div>'; }
+function kpi(v, l) { return '<div class="kpi"><b>' + v + '</b><span>' + esc(l) + '</span></div>'; }
+
+// 折れ線（1系列・値ラベルつき）
+function line(title, pts, fmt, ymin, ymax) {
+  const W = 260, H = 130, L = 26, R = 14, T = 20, B = 24, xs = pts.length;
+  const x = i => xs === 1 ? W / 2 : L + i * (W - L - R) / (xs - 1), y = v => T + (1 - (v - ymin) / (ymax - ymin)) * (H - T - B);
+  let path = "", dots = "", started = false;
+  pts.forEach((p, i) => {
+    if (p.v == null) { started = false; return; }
+    path += (started ? "L" : "M") + x(i) + " " + y(p.v); started = true;
+    dots += '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>' + esc(p.l) + '：' + fmt(p.v) + '</title></circle><text x="' + x(i) + '" y="' + (y(p.v) - 9) + '" text-anchor="middle" font-size="11" fill="var(--ink)">' + fmt(p.v) + '</text>';
+  });
+  const grid = [ymin, (ymin + ymax) / 2, ymax].map(g => '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '" stroke="var(--line)"/><text x="' + (L - 4) + '" y="' + (y(g) + 4) + '" text-anchor="end" font-size="10" fill="var(--ink3)">' + (Math.round(g * 10) / 10) + '</text>').join("");
+  const labs = pts.map((p, i) => '<text x="' + x(i) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="10" fill="var(--ink3)">' + esc(p.l) + '</text>').join("");
+  return '<div><h3>' + esc(title) + '</h3><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(title) + '">' + grid + '<path d="' + path + '" fill="none" stroke="var(--s1)" stroke-width="2"/>' + dots + labs + '</svg></div>';
+}
+
+// ---- 画面 ----
+function render() {
+  const lessons = ids().filter(isLesson);
+  const tabs = [["all", "全体の推移"], ...lessons.map(i => [i, D.surveys[i].session + (rowsOf(i).length ? "" : "（未実施）")]), ["people", "受講者"], ["voices", "声ライブラリ"], ["links", "配布リンク"]];
+  $("nav").innerHTML = tabs.map(([k, l]) => '<button class="chip" aria-pressed="' + (TAB === k) + '" data-t="' + k + '">' + esc(l) + '</button>').join("");
+  $("nav").querySelectorAll("button").forEach(b => b.onclick = () => { TAB = b.dataset.t; render(); window.scrollTo(0, 0); });
+  $("view").innerHTML = TAB === "all" ? vAll() : TAB === "people" ? vPeople() : TAB === "voices" ? vVoices() : TAB === "links" ? vLinks() : vSession(TAB);
+  bindVoices();
+}
+
+function vAll() {
+  const ls = ids().filter(isLesson), S = ls.map(i => ({ id: i, l: D.surveys[i].session, s: stats(i) }));
+  const withN = S.filter(x => x.s.n);
+  let h = '<div class="kpis">' + kpi(D.rows.filter(r => isLesson(r.survey)).length, "講座アンケートの回答（のべ）") + kpi(new Set(D.rows.map(r => r.learner)).size, "受講者（実人数）") +
+    kpi(withN.length ? pct(withN.reduce((a, x) => a + x.s.n, 0) && withN[withN.length - 1].s.full, withN[withN.length - 1].s.n) + "%" : "—", "最新回の完走率") +
+    kpi(f1((withN.slice().reverse().find(x => x.s.nps != null) || { s: {} }).s.nps), "おすすめ度（0〜10・最新）") + '</div>';
+  h += block("回をまたいだ推移", "同じ物差しで毎回聞いて、受講するたびに伸びているかを見ます。回答が無い回は線が切れます。",
+    '<div class="lines">' +
+    line("完走率（%）", S.map(x => ({ l: x.l, v: x.s.fullRate == null ? null : x.s.fullRate * 100 })), v => Math.round(v) + "%", 0, 100) +
+    line("自信度（1〜5・自分で進められる）", S.map(x => ({ l: x.l, v: x.s.conf })), v => f1(v), 1, 5) +
+    line("おすすめ度（0〜10）", S.map(x => ({ l: x.l, v: x.s.nps })), v => f1(v), 0, 10) +
+    line("仕事で使っている人の割合（%）", S.map(x => ({ l: x.l, v: x.s.usedRate == null ? null : x.s.usedRate * 100 })), v => Math.round(v) + "%", 0, 100) +
+    '</div><p class="note">第1回は「役立ち度（1〜5）」で聞いていたため、自信度・おすすめ度・使用率は第2回から線が始まります（第1回の役立ち度：平均 ' + f1(S[0] && S[0].s.useful) + '）。</p>');
+  h += block("回ごとの比較表", "", '<div class="tbl"><table><tr><th>回</th><th class="c">回答数</th><th class="c">完走率</th><th class="c">自信度</th><th class="c">おすすめ度</th><th class="c">NPS</th><th class="c">使用率</th></tr>' +
+    S.map(x => '<tr><td>' + esc(x.l) + '</td><td class="c">' + x.s.n + '</td><td class="c">' + (x.s.fullRate == null ? "—" : Math.round(x.s.fullRate * 100) + "%") + '</td><td class="c">' + f1(x.s.conf) + '</td><td class="c">' + f1(x.s.nps) + '</td><td class="c">' + (x.s.npsScore == null ? "—" : x.s.npsScore) + '</td><td class="c">' + (x.s.usedRate == null ? "—" : Math.round(x.s.usedRate * 100) + "%") + '</td></tr>').join("") + '</table></div><p class="note">NPS＝9〜10の割合から0〜6の割合を引いた値（−100〜100）。完走率＝その回の全ステップをできた人の割合。</p>');
+  // 次回やりたいこと（全回の合計）
+  const tally = {}; let tn = 0;
+  ids().filter(isLesson).forEach(i => { const c = counts(i, "next"); if (c) { tn += c.n; c.list.forEach(([o, v]) => tally[o] = (tally[o] || 0) + v); } });
+  h += block("要望の合計（のべ）", "全回の「次にやりたいこと」を合計したもの。売るメニューの優先順位に。", bars(Object.entries(tally).sort((a, b) => b[1] - a[1]), tn));
+  return h;
+}
+
+function vSession(id) {
+  const sv = D.surveys[id], s = stats(id), rs = rowsOf(id), n = rs.length, nt = NOTES[id];
+  if (!n) return block(sv.session, "", '<p class="sub">まだ回答がありません。回答が入ると、ここに図が自動で出ます。</p>');
+  let h = '<div class="kpis">' + kpi(n, "回答数") + (s.fullRate != null ? kpi(Math.round(s.fullRate * 100) + "%", "完走率（" + s.full + "/" + n + "名）") : "") +
+    (s.conf != null ? kpi(f1(s.conf), "自信度（1〜5）") : "") + (s.nps != null ? kpi(f1(s.nps), "おすすめ度（0〜10）") : "") + (s.useful != null ? kpi(f1(s.useful), "役立ち度（1〜5）") : "") +
+    (s.usedRate != null ? kpi(Math.round(s.usedRate * 100) + "%", "仕事で使っている") : "") + '</div>';
+  if (sv.draft) h += '<p class="note">※ この回の「できたこと」の選択肢は仮です。講座の内容が決まったら surveys.json で直せます。</p>';
+  if (nt) h += '<div class="card"><div class="head">' + esc(nt.headline) + '</div><ul class="pts">' + nt.points.map(p => '<li>' + esc(p) + '</li>').join("") + '</ul>' + (nt.caveat ? '<p class="note">' + esc(nt.caveat) + '</p>' : '') + '</div>';
+  else h += autoInsight(id);
+  const dn = counts(id, "done");
+  if (dn) h += block("どこまでできたか（ステップごとの到達）", "落ち込みが大きいステップが、次回の補講と資料の直しどころ。", bars(dn.list, n, { hl: (t, c) => t === dn.qq.stop }));
+  const st = counts(id, "stuck"); if (st) h += block("つまずいたところ", "上位が、次回の冒頭で扱うこと。", bars(st.list.slice().sort((a, b) => b[1] - a[1]), n, { hl: (t, c) => c === Math.max(...st.list.map(x => x[1])) && c > 0 }));
+  let g = "";
+  const pc = counts(id, "pace"); if (pc) g += '<div class="card"><h2>進むスピード</h2><div style="margin-top:10px">' + stack(pc.list, n) + '</div></div>';
+  const us = counts(id, "used"); if (us) g += '<div class="card"><h2>前回の内容を仕事で使ったか</h2><div style="margin-top:10px">' + stack(us.list, n) + '</div></div>';
+  const os = counts(id, "os"); if (os) g += '<div class="card"><h2>パソコン</h2><div style="margin-top:10px">' + stack(os.list, n) + '</div></div>';
+  const ex = counts(id, "exp"); if (ex) g += '<div class="card"><h2>AI経験</h2><div style="margin-top:10px">' + bars(ex.list, n) + '</div></div>';
+  const tm = counts(id, "time"); if (tm) g += '<div class="card"><h2>参加しやすい時間帯</h2><div style="margin-top:10px">' + stack(tm.list, n) + '</div></div>';
+  const sy = counts(id, "style"); if (sy) g += '<div class="card"><h2>次回までの希望スタイル</h2><div style="margin-top:10px">' + bars(sy.list, n) + '</div></div>';
+  if (g) h += '<div class="grid">' + g + '</div>';
+  ["conf", "nps", "useful"].forEach(k => { const qq = q(id, k); if (!qq) return; const m = {}; for (let v = qq.min; v <= qq.max; v++) m[v] = 0; rs.forEach(r => { if (r.a[k] in m) m[r.a[k]]++; }); h += block(qq.label, "", bars(Object.entries(m).map(([v, c]) => [v, c]), n)); });
+  const nx = counts(id, "next"); if (nx) h += block("次回以降にやりたいこと", "要望の多い順＝次の回の主題の候補。", bars(nx.list.slice().sort((a, b) => b[1] - a[1]), n));
+  return h;
+}
+function autoInsight(id) {
+  const s = stats(id), st = counts(id, "stuck"), nx = counts(id, "next"), dn = counts(id, "done");
+  const top = l => l.slice().sort((a, b) => b[1] - a[1]).filter(x => x[1] > 0)[0];
+  const p = [];
+  if (dn) { const ls = dn.list.filter(x => x[0] !== dn.qq.stop); let drop = null; for (let i = 1; i < ls.length; i++) { const d = ls[i - 1][1] - ls[i][1]; if (d > 0 && (!drop || d > drop.d)) drop = { d, a: ls[i - 1][0], b: ls[i][0] }; } if (drop) p.push("到達が最も落ちるのは「" + drop.a + "」→「" + drop.b + "」（" + drop.d + "名減）。"); }
+  if (st && top(st.list)) p.push("つまずき最多は「" + top(st.list)[0] + "」（" + top(st.list)[1] + "名）。");
+  if (nx && top(nx.list)) p.push("要望最多は「" + top(nx.list)[0] + "」（" + top(nx.list)[1] + "名）。");
+  if (s.conf != null) p.push("自信度の平均は " + f1(s.conf) + "（5点満点）、おすすめ度の平均は " + f1(s.nps) + "。");
+  return '<div class="card"><div class="head">自動の所見（回答から機械的に作成）</div><ul class="pts">' + p.map(x => '<li>' + esc(x) + '</li>').join("") + '</ul></div>';
+}
+
+function vPeople() {
+  const ls = ids().filter(i => isLesson(i) && rowsOf(i).length);
+  const L = {};
+  D.rows.forEach(r => { (L[r.learner] = L[r.learner] || { name: r.name, company: r.company, email: r.email, by: {}, fu: {} }); const o = L[r.learner]; if (r.email) o.email = r.email; if (r.company) o.company = r.company; if (isLesson(r.survey)) o.by[r.survey] = r; else Object.assign(o.fu, r.a); });
+  const rowsH = Object.values(L).sort((a, b) => Object.keys(b.by).length - Object.keys(a.by).length).map(o => {
+    const cells = ls.map(i => { const r = o.by[i]; if (!r) return '<td class="c"><span class="cell" style="background:var(--track);color:var(--ink3)">—</span></td>'; const st = stats(i); const dn = (r.a.done || []).filter(x => st.steps.includes(x)).length; const rate = st.steps.length ? dn / st.steps.length : null; return '<td class="c"><span class="cell" style="background:' + tone(rate) + ';color:' + (rate > .6 ? "#fff" : "var(--ink)") + '" title="できた ' + dn + '/' + st.steps.length + (r.a.conf ? '／自信 ' + r.a.conf : '') + '">' + dn + '/' + st.steps.length + (r.a.conf ? ' · ' + r.a.conf : '') + '</span></td>'; }).join("");
+    const hk = o.fu.hoko ? '<span class="tag ' + (o.fu.hoko === "参加したい" ? "ok" : "") + '">補講：' + esc(o.fu.hoko) + '</span>' : "";
+    return '<tr><td>' + esc(o.name) + (o.company ? '<div class="sub">' + esc(o.company) + '</div>' : '') + '</td>' + cells + '<td>' + hk + '</td></tr>';
+  }).join("");
+  return block("受講者ごとの歩み", "セルは「できたステップ数/全ステップ · 自信度（1〜5）」。濃いほど完走に近い。同じ人は名前・メール・別名でつなぎます（スプレッドシートの「受講者」タブで別名を足せます）。",
+    '<div class="tbl"><table><tr><th>お名前</th>' + ls.map(i => '<th class="c">' + esc(D.surveys[i].session) + '</th>').join("") + '<th>フォロー</th></tr>' + rowsH + '</table></div>');
+}
+
+const THEMES = [["請求書・経理", /請求|経理|報酬|入金|会計/], ["スタッフ・振り分け", /スタッフ|振り分|振る|シフト|日報|秘書|事務/], ["集客・営業", /集客|営業|広告|予約システム|リピート|口コミ/], ["採用・教育", /面接|採用|教育|人柄|研修/], ["拡大・展開", /制覇|エリア|拡大|展開|県/], ["不安・リスク", /怖|不安|心配|個人情報/]];
+function consentOf(learner) {
+  let c = null;
+  D.rows.filter(r => r.learner === learner && Array.isArray(r.a.consent) && r.a.consent.length).forEach(r => c = r.a.consent);
+  return c;
+}
+function voicesList() {
+  const out = [];
+  D.rows.forEach(r => { const sv = D.surveys[r.survey]; sv.questions.filter(x => x.type === "text").forEach(x => { const t = r.a[x.id]; if (t) out.push({ r, label: x.label, t, c: consentOf(r.learner), s: sv.session }); }); });
+  return out;
+}
+function status(c) { if (!c) return ["wait", "未確認（許可を取る前の回答）"]; if (c.includes("使わないでほしい")) return ["bad", "使用不可"]; if (c.includes("文章の引用（お名前は伏せて）") || c.includes("会社名・お名前を出しての掲載")) return ["ok", "引用OK"]; return ["wait", "引用は未許可"]; }
+let VF = { st: "all", th: "all" };
+function vVoices() {
+  const V = voicesList(), th = t => THEMES.filter(x => x[1].test(t)).map(x => x[0]);
+  const cnt = { ok: 0, wait: 0, bad: 0 }; V.forEach(v => cnt[status(v.c)[0]]++);
+  const iv = {}; D.rows.forEach(r => { const c = consentOf(r.learner); if (c && c.includes("動画インタビューの依頼（あとで連絡してよい）")) iv[r.learner] = { name: r.name, email: r.email, t: (D.rows.filter(x => x.learner === r.learner && x.a.interview_time).pop() || { a: {} }).a.interview_time || "" }; });
+  let h = '<div class="kpis">' + kpi(V.length, "集まった声") + kpi(cnt.ok, "引用OK") + kpi(cnt.wait, "未確認（本人に確認が必要）") + kpi(Object.keys(iv).length, "動画インタビューOK") + '</div>';
+  h += block("テーマ別の件数", "キーワードで自動分類（目安）。ステップメールの1通＝1テーマ、動画1本＝1テーマの目安に。",
+    bars(THEMES.map(x => [x[0], V.filter(v => x[1].test(v.t)).length]), V.length || 1));
+  h += '<div class="card"><h2>声の一覧</h2><div class="sub" style="margin-bottom:8px">許可がない声は、動画・メールに使わないでください。</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="vf">' +
+    [["all", "すべて"], ["ok", "引用OK"], ["wait", "未確認"], ["bad", "使用不可"]].map(([k, l]) => '<button class="chip sm" data-st="' + k + '" aria-pressed="' + (VF.st === k) + '">' + l + '</button>').join("") + '<span style="width:12px"></span>' +
+    [["all", "テーマ：すべて"], ...THEMES.map(x => [x[0], x[0]])].map(([k, l]) => '<button class="chip sm" data-th="' + esc(k) + '" aria-pressed="' + (VF.th === k) + '">' + esc(l) + '</button>').join("") + '</div>' +
+    V.filter(v => (VF.st === "all" || status(v.c)[0] === VF.st) && (VF.th === "all" || th(v.t).includes(VF.th))).map(v => { const s = status(v.c); return '<div class="quote"><span class="tag ' + s[0] + '">' + s[1] + '</span>' + th(v.t).map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '<span class="sub">' + esc(v.s) + '｜' + esc(v.r.name) + '</span><p>' + esc(v.t) + '</p><div class="sub">' + esc(v.label) + '</div></div>'; }).join("") + '</div>';
+  if (Object.keys(iv).length) h += block("動画インタビュー候補", "", '<div class="tbl"><table><tr><th>お名前</th><th>メール</th><th>都合の良い時間帯</th></tr>' + Object.values(iv).map(x => '<tr><td>' + esc(x.name) + '</td><td>' + esc(x.email) + '</td><td>' + esc(x.t) + '</td></tr>').join("") + '</table></div>');
+  return h;
+}
+function bindVoices() {
+  const vf = $("vf"); if (!vf) return;
+  vf.querySelectorAll("button").forEach(b => b.onclick = () => { if (b.dataset.st) VF.st = b.dataset.st; else VF.th = b.dataset.th; render(); });
+}
+function vLinks() {
+  const base = location.href.replace(/dashboard\.html.*$/, "");
+  return block("アンケートの配布リンク", "回ごとに別のリンクです。回答は自動でこのレポートに合流します。", '<div class="tbl"><table><tr><th>アンケート</th><th>リンク</th><th>回答</th></tr>' +
+    ids().map(i => '<tr><td>' + esc(D.surveys[i].title) + (D.surveys[i].draft ? ' <span class="tag wait">質問は仮</span>' : '') + '</td><td class="mono"><a href="' + base + 'survey.html?s=' + i + '" target="_blank" rel="noopener">' + base + 'survey.html?s=' + i + '</a></td><td>' + rowsOf(i).length + '</td></tr>').join("") + '</table></div>');
+}
+</script>
+</body>
+</html>
