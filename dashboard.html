@@ -62,9 +62,9 @@ a{color:var(--s1)}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div><h1>講座データレポート</h1><div class="sub" id="meta">合言葉を入れると表示されます</div></div>
-  <div><button class="chip sm" id="reload" hidden>最新にする</button> <button class="chip sm" id="theme">明暗</button></div></div>
-  <div id="login" class="card"><h2>合言葉</h2><p class="sub">管理者用のページです。個人名・自由記述を含むため、合言葉が必要です。</p>
+  <div class="top"><div><h1>講座データレポート</h1><div class="sub" id="meta">読み込み中…</div></div>
+  <div><button class="chip sm" id="reload" hidden>最新にする</button> <button class="chip sm" id="admin" hidden>メールも表示</button> <button class="chip sm" id="theme">明暗</button></div></div>
+  <div id="login" class="card" hidden><h2>合言葉</h2><p class="sub">入れると、メールアドレスも表示されます（なくても見られます）。</p>
     <form id="lf"><input type="text" inputmode="numeric" id="key" autocomplete="current-password" placeholder="合言葉"> <button class="main" type="submit">開く</button></form><p class="sub" id="lerr"></p></div>
   <div id="app" hidden>
     <div class="nav" id="nav"></div>
@@ -82,26 +82,28 @@ const f1 = v => v == null ? "—" : (Math.round(v * 10) / 10).toFixed(1);
 
 // ---- 読み込み ----
 async function load(key) {
-  const r = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ kind: "report", key }) });
+  const r = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(key ? { kind: "report", key } : { kind: "report" }) });
   const j = await r.json();
   if (!j.ok) throw new Error(j.error);
   return j;
 }
 async function open(key) {
-  $("lerr").textContent = "読み込み中…";
+  $("lerr").textContent = "";
   try {
     D = await load(key);
     try { NOTES = await (await fetch("notes.json")).json(); } catch (e) { NOTES = {}; }
-    try { localStorage.setItem("koza-key", key); } catch (e) {}
-    $("login").hidden = true; $("app").hidden = false; $("reload").hidden = false;
+    try { if (key) localStorage.setItem("koza-key", key); } catch (e) {}
+    $("login").hidden = true; $("app").hidden = false; $("reload").hidden = false; $("admin").hidden = !!key; $("lerr").textContent = "";
     $("meta").textContent = "回答 " + D.rows.length + " 件／受講者 " + new Set(D.rows.map(r => r.learner)).size + " 名／更新 " + new Date().toLocaleString("ja-JP");
     render();
-  } catch (e) { $("lerr").textContent = e.message === "locked" ? "まちがいが続いたため、しばらく開けません（1時間ほどで戻ります）" : e.message === "key" ? "合言葉が違います" : "読み込めませんでした（" + e.message + "）"; }
+  } catch (e) { $("login").hidden = false; $("lerr").textContent = e.message === "locked" ? "まちがいが続いたため、しばらく開けません（1時間ほどで戻ります）" : e.message === "key" ? "合言葉が違います" : "読み込めませんでした（" + e.message + "）"; }
 }
 $("lf").addEventListener("submit", e => { e.preventDefault(); open($("key").value.trim()); });
+$("admin").addEventListener("click", () => { $("login").hidden = !$("login").hidden; });
 $("reload").addEventListener("click", () => { let k = ""; try { k = localStorage.getItem("koza-key") || ""; } catch (e) {} open(k); });
 $("theme").addEventListener("click", () => { const d = document.documentElement; d.dataset.theme = (d.dataset.theme || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light")) === "dark" ? "light" : "dark"; });
-try { const k = localStorage.getItem("koza-key"); if (k) open(k); } catch (e) {}
+let k0 = ""; try { k0 = localStorage.getItem("koza-key") || ""; } catch (e) {}
+open(k0);
 
 // ---- 集計 ----
 function ids() { return Object.keys(D.surveys).sort((a, b) => D.surveys[a].order - D.surveys[b].order); }
