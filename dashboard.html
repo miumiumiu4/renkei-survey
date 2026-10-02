@@ -65,7 +65,7 @@ a{color:var(--s1)}
   <div class="top"><div><h1>講座データレポート</h1><div class="sub" id="meta">合言葉を入れると表示されます</div></div>
   <div><button class="chip sm" id="reload" hidden>最新にする</button> <button class="chip sm" id="theme">明暗</button></div></div>
   <div id="login" class="card"><h2>合言葉</h2><p class="sub">管理者用のページです。個人名・自由記述を含むため、合言葉が必要です。</p>
-    <form id="lf"><input type="password" id="key" autocomplete="current-password" placeholder="合言葉"> <button class="main" type="submit">開く</button></form><p class="sub" id="lerr"></p></div>
+    <form id="lf"><input type="text" inputmode="numeric" id="key" autocomplete="current-password" placeholder="合言葉"> <button class="main" type="submit">開く</button></form><p class="sub" id="lerr"></p></div>
   <div id="app" hidden>
     <div class="nav" id="nav"></div>
     <div id="view"></div>
@@ -96,7 +96,7 @@ async function open(key) {
     $("login").hidden = true; $("app").hidden = false; $("reload").hidden = false;
     $("meta").textContent = "回答 " + D.rows.length + " 件／受講者 " + new Set(D.rows.map(r => r.learner)).size + " 名／更新 " + new Date().toLocaleString("ja-JP");
     render();
-  } catch (e) { $("lerr").textContent = e.message === "key" ? "合言葉が違います" : "読み込めませんでした（" + e.message + "）"; }
+  } catch (e) { $("lerr").textContent = e.message === "locked" ? "まちがいが続いたため、しばらく開けません（1時間ほどで戻ります）" : e.message === "key" ? "合言葉が違います" : "読み込めませんでした（" + e.message + "）"; }
 }
 $("lf").addEventListener("submit", e => { e.preventDefault(); open($("key").value.trim()); });
 $("reload").addEventListener("click", () => { let k = ""; try { k = localStorage.getItem("koza-key") || ""; } catch (e) {} open(k); });
